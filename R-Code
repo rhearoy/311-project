@@ -32,3 +32,12 @@ count(blanks$TYPE)
 # data set. 
 
 data1 = subset(data, data$neighborhood != "")
+
+
+data1$time = data1$CLOSED_DT - data1$OPEN_DT
+
+# Restrict the data set to the relevant variable
+colnames(data1)
+
+data2 = data1[c(1:7,9,10,13,16,21,26,28,30:35)]
+
