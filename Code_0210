@@ -1,0 +1,66 @@
+setwd("~/Desktop") #remember to adjust this working directory for your file path
+
+# Read in packages to help shape and manipulate the data
+require(plyr)
+require(lubridate)
+
+#Read in data
+data = read.csv("311__Service_Requests.csv", as.is = T)
+
+
+
+#Exploratory Analysis of Locations
+count(data$neighborhood)
+count(data$LOCATION_ZIPCODE)
+
+#This plot doesn't give us all the labels because it's too big, but it's good to see
+#the varying sizes of requests
+plot(count(data$neighborhood))
+
+#Convert ass
+data$OPEN_DT = as.Date(data$OPEN_DT, "%m/%d/%y")
+data$TARGET_DT = as.Date(data$TARGET_DT, "%m/%d/%y")
+data$CLOSED_DT = as.Date(data$CLOSED_DT, "%m/%d/%y")
+
+data$year = year(data$OPEN_DT)
+
+#Exploring the 30,000+ blanks
+blanks = subset(data, data$neighborhood == "")
+count(blanks$LATITUDE)
+count(blanks$LOCATION_STREET_NAME)
+count(blanks$TYPE)
+
+# After looking at the 30,906 blanks, we did not find a pattern within the data.
+# Most of them have no data at all for the location, and those with location info
+# often have incorrect addresses. Overall, these blanks only account for 4.52% of the 
+# data set. 
+
+data1 = subset(data, data$neighborhood != "")
+
+data1$time = data1$CLOSED_DT - data1$OPEN_DT
+
+# Restrict the data set to the relevant variable
+colnames(data1)
+
+data2 = data1[c(1:7,9,10,13,16,21,26,28,30:35)]
+
+data2011 = subset(data2, data2$year == 2011)
+data2012 = subset(data2, data2$year == 2012)
+data2013 = subset(data2, data2$year == 2013)
+data2014 = subset(data2, data2$year == 2014)
+data2015 = subset(data2, data2$year == 2015)
+
+# double check that all the subsets add up to the entire data set
+nrow(data2011)+nrow(data2012)+nrow(data2013)+nrow(data2014)+nrow(data2015) # = 653125
+
+# Visualize the data points on a map
+require(ggplot2)
+require(ggmap)
+
+
+map <- get_map(location = c(lon = mean(data2015$LONGITUDE), lat = mean(data2015$LATITUDE)), zoom = 15,
+                      maptype = "satellite", scale = 2)
+
+ggmap(map) +
+  geom_point(data = data2015, aes(x = LONGITUDE, y = LATITUDE, fill = "white", alpha = 0.8), size = 1, shape = 21) +
+  guides(fill=FALSE, alpha=FALSE, size=FALSE)
