@@ -1,0 +1,118 @@
+setwd("~/Desktop") #remember to adjust this working directory for your file path
+
+# Read in packages to help shape and manipulate the data
+require(plyr)
+require(lubridate)
+
+#Read in data
+data = read.csv("311__Service_Requests.csv", as.is = T)
+
+
+
+#Exploratory Analysis of Locations
+count(data$neighborhood)
+count(data$LOCATION_ZIPCODE)
+
+#This plot doesn't give us all the labels because it's too big, but it's good to see
+#the varying sizes of requests
+plot(count(data$neighborhood))
+
+#Convert ass
+data$OPEN_DT = as.Date(data$OPEN_DT, "%m/%d/%y")
+data$TARGET_DT = as.Date(data$TARGET_DT, "%m/%d/%y")
+data$CLOSED_DT = as.Date(data$CLOSED_DT, "%m/%d/%y")
+
+data$year = year(data$OPEN_DT)
+
+#Exploring the 30,000+ blanks
+blanks = subset(data, data$neighborhood == "")
+count(blanks$LATITUDE)
+count(blanks$LOCATION_STREET_NAME)
+count(blanks$TYPE)
+
+# After looking at the 30,906 blanks, we did not find a pattern within the data.
+# Most of them have no data at all for the location, and those with location info
+# often have incorrect addresses. Overall, these blanks only account for 4.52% of the 
+# data set. 
+
+data1 = subset(data, data$neighborhood != "")
+
+data1$time = data1$CLOSED_DT - data1$OPEN_DT
+
+#Convert time to be numeric
+
+data1$time = as.numeric(data1$time)
+
+# Restrict the data set to the relevant variable
+colnames(data1)
+
+data2 = data1[c(1:7,9,10,13,16,21,26,28,30:35)]
+
+
+
+
+
+data2011 = subset(data2, data2$year == 2011)
+data2012 = subset(data2, data2$year == 2012)
+data2013 = subset(data2, data2$year == 2013)
+data2014 = subset(data2, data2$year == 2014)
+data2015 = subset(data2, data2$year == 2015)
+
+# double check that all the subsets add up to the entire data set
+nrow(data2011)+nrow(data2012)+nrow(data2013)+nrow(data2014)+nrow(data2015) # = 653125
+
+# Visualize the data points on a map
+require(ggplot2)
+require(ggmap)
+
+
+map <- get_map(location = c(lon = mean(data2015$LONGITUDE), lat = mean(data2015$LATITUDE)), zoom = 10,
+                      maptype = "satellite", scale = 2)
+
+ggmap(map) +
+  geom_point(data = data2015, aes(x = LONGITUDE, y = LATITUDE, fill = "white", alpha = 0.8), size = 1, shape = 21) +
+  guides(fill=FALSE, alpha=FALSE, size=FALSE)
+
+# Give neighborhoods a numeric ID from 1-23
+n_id = c(1:23)
+n_list= unique(data2$neighborhood)
+n_merge = as.data.frame(cbind(n_id, n_list))
+colnames(n_merge) = c("neighborhood_id", "neighborhood")
+
+#Create summary data set by neighborhood
+s_data = ddply(data2011, c("neighborhood", "year"), summarize, 
+               AverageDays = sum(time, na.rm = T)/length(CASE_ENQUIRY_ID),
+               TotalCalls = length(CASE_ENQUIRY_ID)
+               )
+
+s_data = merge(s_data, n_merge, by = "neighborhood")
+
+radius <- sqrt( s_data$TotalCalls/ pi )
+symbols(s_data$neighborhood_id,s_data$AverageDays,  circles = radius,
+        fg="white", bg="pink", xlab="Neighborhood", ylab="Average Days")
+
+text(s_data$neighborhood_id,s_data$AverageDays,  s_data$neighborhood,cex=0.5)
+
+
+#The following 4 charts show the frequency of sources within neighborhoods
+counts2011 = table(data2011$Source, data2011$neighborhood)
+barplot2011 = barplot(counts2011, main = "Source Types by Neighborhood",
+                      xlab = "Neighborhood", col = c("pink","blue","red","green",
+                                                     "yellow","orange"),
+                      legend = rownames(counts2011))
+
+counts2012 = table(data2012$Source, data2012$neighborhood)
+barplot2012 = barplot(counts2012, main = "Source Types by Neighborhood",
+                      xlab = "Neighborhood", legend = rownames(counts2012))
+
+counts2013 = table(data2013$Source, data2013$neighborhood)
+barplot2013 = barplot(counts2013, main = "Source Types by Neighborhood",
+                      xlab = "Neighborhood", legend = rownames(counts2013))
+
+counts2014 = table(data2014$Source, data2014$neighborhood)
+barplot2014 = barplot(counts2014, main = "Source Types by Neighborhood",
+                      xlab = "Neighborhood", legend = rownames(counts2014))
+
+counts2015 = table(data2015$Source, data2015$neighborhood)
+barplot2015 = barplot(counts2015, main = "Source Types by Neighborhood",
+                      xlab = "Neighborhood", legend = rownames(counts2015))
