@@ -1,0 +1,9 @@
+# geolocation of Boston: choose some typical points on the border of Boston
+al <- c(42.282815, 42.303640, 42.350344, 42.318873, 42.394984, 42.399041, 
+        42.391688, 42.382527,  42.228436, 42.289419, 42.338671)
+lo <- c(-71.191752, -71.164972, -71.107294, -71.127894,-71.068155,
+        -71.002237, -70.987818, -70.994738, -71.131327,-71.035196, -71.008417)
+outlier.latitude <- data2[(data2$LATITUDE > max(al))&(data2$LATITUDE < min(al))]
+outlier.longitude <- data2[(data2$LONGITUDE > max(lo))&(data2$LONGITUDE > min(lo)) ]
+#Because outliers of latitude and longitude do not exist, we believe the data of geolocation
+#is clean
