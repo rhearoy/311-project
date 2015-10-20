@@ -1,0 +1,67 @@
+
+
+top5_list = c("Dorchester", "Roxbury", "Jamaica Plain", "Allston / Brighton")
+
+top5_2011 = subset(data2011, data2011$neighborhood %in% top5_list)
+top5_2011 = merge(top5_2011, pop, by = "neighborhood")
+top5_2012 = subset(data2012, data2012$neighborhood %in% top5_list)
+top5_2012 = merge(top5_2012, pop, by = "neighborhood")
+top5_2013 = subset(data2013, data2013$neighborhood %in% top5_list)
+top5_2013 = merge(top5_2013, pop, by = "neighborhood")
+top5_2014 = subset(data2014, data2014$neighborhood %in% top5_list)
+top5_2014 = merge(top5_2014, pop, by = "neighborhood")
+top5_2015 = subset(data2015, data2015$neighborhood %in% top5_list)
+top5_2015 = merge(top5_2015, pop, by = "neighborhood")
+
+counts2011source = table(top5_2011$Source, top5_2011$neighborhood)
+counts2012source = table(top5_2012$Source, top5_2012$neighborhood)
+counts2013source = table(top5_2013$Source, top5_2013$neighborhood)
+counts2014source = table(top5_2014$Source, top5_2014$neighborhood)
+counts2015source = table(top5_2015$Source, top5_2015$neighborhood)
+
+
+barplot2011source = barplot(counts2011source, main = "Source Types by Neighborhood 2011-Top 4",
+                      xlab = "Neighborhood", col = c("pink","blue","red","green",
+                                                     "yellow","orange"),
+                       beside = T)
+legend("top", 
+       legend = rownames(counts2011source),
+       fill = c("pink","blue","red","green","yellow","orange"),
+       cex = 0.75)
+
+barplot2012source = barplot(counts2012source, main = "Source Types by Neighborhood 2012-Top 4",
+                            xlab = "Neighborhood", col = c("pink","blue","red","green",
+                                                           "yellow","orange"),
+                            beside = T)
+legend("top", 
+       legend = rownames(counts2012source),
+       fill = c("pink","blue","red","green","yellow","orange"),
+       cex = 0.75)
+
+barplot2013source = barplot(counts2013source, main = "Source Types by Neighborhood 2013-Top 4",
+                            xlab = "Neighborhood", col = c("pink","blue","red","green",
+                                                           "yellow","orange"),
+                            beside = T)
+legend("top", 
+       legend = rownames(counts2013source),
+       fill = c("pink","blue","red","green","yellow","orange"),
+       cex = 0.75)
+                     
+
+barplot2014source = barplot(counts2014source, main = "Source Types by Neighborhood 2014-Top 4",
+                            xlab = "Neighborhood", col = c("pink","blue","red","green",
+                                                           "yellow","orange"),
+                            beside = T)
+legend("top", 
+       legend = rownames(counts2014source),
+       fill = c("pink","blue","red","green","yellow","orange"),
+       cex = 0.75)
+
+barplot2015source = barplot(counts2015source, main = "Source Types by Neighborhood 2015-Top 4",
+                            xlab = "Neighborhood", col = c("pink","blue","red","green",
+                                                           "yellow","orange"),
+                            beside = T)
+legend("top", 
+       legend = rownames(counts2015source),
+       fill = c("pink","blue","red","green","yellow","orange"),
+       cex = 0.75)
