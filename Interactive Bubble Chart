@@ -1,0 +1,36 @@
+library(ggplot2)
+library(plotly)
+library(plyr)
+library(lubridate)
+library(stringr)
+
+#input data
+qosnd <- read.csv("qos_depar_nei2014.csv", header = T, stringsAsFactors = F)
+qosn <- read.csv("qos_neigh_2014_sec.csv", header = T, stringsAsFactors = F)
+pi <- read.csv("pop+income.csv", header = T, stringsAsFactors = F)
+
+colnames(qosnd) <- c("X","neighborhood","department","time_consume","consistency","efficacy",    
+                           "ontime_rate","request_N")
+colnames(qosn) <- c("X","neighborhood","time_consume","consistency","efficacy",    
+                       "ontime_rate","request_N")
+colnames(pi) <- c("neighborhood","population","median income")
+tmp <- merge(qosnd, pi, by = "neighborhood")
+tmp1 <- merge(qosn, pi, by = "neighborhood")
+qos <- tmp[,c(1,3:10)]
+qosnei <- tmp1[,c(1,3:9)]
+#bubble chart
+plot_ly(qos, x = consistency, y = efficacy, mode = "markers",
+        group = department,size = time_consume,text = paste("Neighborhood: ", neighborhood))
+
+plot_ly(qosnei, x = `median income`, y = efficacy, mode = "markers",
+        size=request_N, color = ontime_rate,text = paste("Neighborhood: ", neighborhood))
+
+plot_ly(qosnei, x = population, y = request_N, mode = "markers",
+        size = time_consume, color = ontime_rate, text = paste("Neighborhood: ", neighborhood))
+
+plot_ly(qosnei, x = population, y = request_N, mode = "markers",
+        group = neighborhood)
+
+plot_ly(qos, x = population, y = request_N, mode = "markers",
+        size=time_consume, group = department, text = paste("Neighborhood: ", neighborhood))
+
